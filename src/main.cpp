@@ -492,7 +492,7 @@ int serial_wait(int delay_microsec)
   }
   return Serial.available();
 }
-
+//deine mutter stinkt
 //Waiting whether serial2.available() == true in given time
 int serial2_wait(int delay_microsec)
 {
