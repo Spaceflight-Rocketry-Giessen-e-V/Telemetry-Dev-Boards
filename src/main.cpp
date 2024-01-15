@@ -491,7 +491,6 @@ int serial_wait(int delay_microsec)
     delayMicroseconds(10);
   }
   return Serial.available();
-  //test
 }
 
 //Waiting whether serial2.available() == true in given time
