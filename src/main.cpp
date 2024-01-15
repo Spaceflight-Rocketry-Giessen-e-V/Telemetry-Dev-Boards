@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <stdio.h>
 
 //Pin allocation
 int ledpin1 = 0;
@@ -481,6 +482,75 @@ void loop()
       Serial.print("Error 2001 (received irregular input from user). Entering normal operation mode. | ");
     }
   }
+
+
+//test 0
+char Input[8]={0};
+
+//puts input into 8 byte array
+for(int i = 0; serial2_wait(5000) != 0 && i<8; i++) {
+    Input[i] = Serial2.read();
+}
+  int q;
+//searches for a "t" within the Input
+for(q = 0; Input[q] != 't' || q < 4; q++);
+
+//checks input for the right incarnation and engages test mode 0
+if(Input[q+1]=='e' && Input[q+2]=='s' && Input[q+3]=='t' && Input[q+4]=='0') {
+    digitalWrite(cfgpin, LOW);
+    serial2_wait(5000);
+    digitalWrite(cfgpin, HIGH);
+    Serial2.write('0');
+    serial2_wait(5000);
+  }
+
+  char testBuffer[129]={0};
+
+//puts the received information into a 129 byte array
+for(int i=0; serial2_wait(5000) != 0; i++) {
+    testBuffer[i]=Serial2.read();
+  }
+
+//information in testBuffer is sent to the receiver
+for(int j=0; j<129; j++) {
+    Serial2.write(testBuffer[j]);
+  }
+
+
+
+
+
+/* if(Serial2.available() != 0)
+{
+  if(Serial2.read()=='C')
+  {
+    serial2_wait(600);
+    if(Serial2.read()=='M')
+    {
+      serial2_wait(600);
+      if(Serial2.read()=='D')
+      {
+        serial2_wait(600);
+        if(Serial2.read()=='0')
+        {
+          //Command 1
+        }
+        if(Serial2.read()=='1')
+        {
+          //Command 2
+        }
+      }
+    }
+  }
+} */
+
+
+
+
+
+
+
+
 }
 
 //Waiting whether serial.available() == true in given time
@@ -492,7 +562,6 @@ int serial_wait(int delay_microsec)
   }
   return Serial.available();
 }
-
 //Waiting whether serial2.available() == true in given time
 int serial2_wait(int delay_microsec)
 {
