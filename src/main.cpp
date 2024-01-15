@@ -482,6 +482,7 @@ void loop()
     }
   }
 }
+//test ich
 
 //Waiting whether serial.available() == true in given time
 int serial_wait(int delay_microsec)
