@@ -482,7 +482,6 @@ void loop()
     }
   }
 }
-//test ich
 
 //Waiting whether serial.available() == true in given time
 int serial_wait(int delay_microsec)
@@ -493,8 +492,7 @@ int serial_wait(int delay_microsec)
   }
   return Serial.available();
 }
-//ficken sie sich
-//test
+
 //Waiting whether serial2.available() == true in given time
 int serial2_wait(int delay_microsec)
 {
