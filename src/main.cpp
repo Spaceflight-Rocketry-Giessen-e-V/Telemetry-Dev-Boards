@@ -58,12 +58,65 @@ void loop()
   // [1xxx] Serial from module
   if(Serial2.available() != 0)
   {
-    while(serial2_wait(600) != 0)
+    char InBuffer[8] = {0};
+    //Puts received string into 8 byte array
+    for(int i = 0; i < 8 && serial2_wait(600); i++)
     {
-      Serial.write(Serial2.read());
+      InBuffer[i] = Serial2.read();
     }
-    Serial.write('\n');
+    int q;
+    //Checks for a "C" char within the input
+    for(q = 0; InBuffer[q] != 'C' && q <= 4; q++);
+    //Checks for the string "CMD" within the Input
+    if(InBuffer[q] == 'C' && InBuffer[q+1] == 'M' && InBuffer[q+2] == 'D') 
+    {
+      //Checks for a char "0" following a "CMD" string to enter testmode 0
+      if(InBuffer[q+3] == '0') 
+      {
+        //Engages configuration mode
+        digitalWrite(cfgpin, LOW);
+        serial2_wait(5000);
+        digitalWrite(cfgpin, HIGH);
+        if(Serial2.available() == 1 && Serial2.read() == '>')
+        {
+          //Engages testmode 0
+          Serial2.write('0');
+          Serial.write("Test 0 command received. Transmitting configuration data. | ");
+          serial2_wait(5000);
+          char OutBuffer[129] = {0};
+          //The testmode 0 data is put into an output buffer
+          for(int i=0; serial2_wait(5000) != 0; i++) 
+          {
+            OutBuffer[i] = Serial2.read();
+          }
+          //Sends output buffer to receiver
+          for(int j=0; j<129; j++) 
+          {
+            Serial2.write(OutBuffer[j]);
+          }
+        }
+      }
+      else
+      {
+        Serial.write("Error 1001 (irregular command received). Printing the input data and entering normal operation mode. ");
+        for(int i = 0; i < 8; i++)
+        {
+          Serial.write(InBuffer[i]);
+        }
+        Serial.print(" | ");
+      } 
+    }
+    //No command detected
+    else
+    {
+      for(int i = 0; i < 8; i++)
+      {
+        Serial.write(InBuffer[i]);
+      }
+      Serial.print(" | ");
+    }
   }
+    
 
   // [2xxx] Serial from user
   if(Serial.available() != 0)
@@ -79,7 +132,7 @@ void loop()
       while(Serial.available() != 0)
       {
         int i;
-        for(int i = 0; i < 128 && Serial.available(); i++)
+        for(i = 0; i < 128 && Serial.available(); i++)
         {
           inBuffer[i] = Serial.read();
         }
@@ -483,74 +536,6 @@ void loop()
     }
   }
 
-
-//test 0
-char Input[8]={0};
-
-//puts input into 8 byte array
-for(int i = 0; serial2_wait(5000) != 0 && i<8; i++) {
-    Input[i] = Serial2.read();
-}
-  int q;
-//searches for a "t" within the Input
-for(q = 0; Input[q] != 't' || q < 4; q++);
-
-//checks input for the right incarnation and engages test mode 0
-if(Input[q+1]=='e' && Input[q+2]=='s' && Input[q+3]=='t' && Input[q+4]=='0') {
-    digitalWrite(cfgpin, LOW);
-    serial2_wait(5000);
-    digitalWrite(cfgpin, HIGH);
-    Serial2.write('0');
-    serial2_wait(5000);
-  }
-
-  char testBuffer[129]={0};
-
-//puts the received information into a 129 byte array
-for(int i=0; serial2_wait(5000) != 0; i++) {
-    testBuffer[i]=Serial2.read();
-  }
-
-//information in testBuffer is sent to the receiver
-for(int j=0; j<129; j++) {
-    Serial2.write(testBuffer[j]);
-  }
-
-
-
-
-
-/* if(Serial2.available() != 0)
-{
-  if(Serial2.read()=='C')
-  {
-    serial2_wait(600);
-    if(Serial2.read()=='M')
-    {
-      serial2_wait(600);
-      if(Serial2.read()=='D')
-      {
-        serial2_wait(600);
-        if(Serial2.read()=='0')
-        {
-          //Command 1
-        }
-        if(Serial2.read()=='1')
-        {
-          //Command 2
-        }
-      }
-    }
-  }
-} */
-
-
-
-
-
-
-
-
 }
 
 //Waiting whether serial.available() == true in given time
@@ -562,6 +547,7 @@ int serial_wait(int delay_microsec)
   }
   return Serial.available();
 }
+
 //Waiting whether serial2.available() == true in given time
 int serial2_wait(int delay_microsec)
 {
