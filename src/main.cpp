@@ -109,7 +109,6 @@ void loop()
     //No command detected
     else
     {
-      Serial.write(Serial2.available());
       for(int i = 0; i < 8; i++)
       {
         Serial.write(InBuffer[i]);
@@ -275,7 +274,7 @@ void loop()
               }
             }
             Serial2.write(0xFF);
-            while(Serial2.available())
+            while(serial2_wait(5000))
             {
               Serial2.read();
             }
