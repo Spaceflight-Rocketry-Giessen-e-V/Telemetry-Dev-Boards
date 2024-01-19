@@ -253,14 +253,14 @@ void loop()
               }
               else if(inByte <= 0x35)
               {
-                Serial2.write(Serial.read());
+                Serial2.write(inByte);
                 Serial.print("Enter the desired value. ");
                 if(serial_wait(20000000) != 0)
                 {
                   inByte = Serial.read();
                   if(inByte <= 0x35)
                   {
-                    Serial2.write(Serial.read());
+                    Serial2.write(inByte);
                     Serial.print("Finished memory configuration. Entering normal operation mode. | ");
                   }
                   else 
